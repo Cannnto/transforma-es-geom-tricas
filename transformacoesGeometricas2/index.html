@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <script>
+        var canvas = document.createElement('canvas');
+        document.body.appendChild(canvas);
+        var ctx = canvas.getContext('2d');
+        canvas.width = 500;
+        canvas.height = 500;
+
+        document.addEventListener('keypress', (event)=>
+        {   event.key == 'w' && rec.translate(0,-10);
+            event.key == 'a' && rec.translate(-10,0);
+            event.key == 's' && rec.translate(0,10);
+            event.key == 'd' && rec.translate(10,0);
+            event.key == 'e' && rec.scale(0.9);
+            event.key == 'q' && rec.scale(1.1);
+            event.key == 'r' && rec.rotate(10);
+            event.key == 'f' && rec.rotate(-10);
+        });
+
+        class Point
+        {   constructor(x,y)
+            {   this.x = x;
+                this.y = y;
+            }
+
+            translate(x,y)
+            {   this.x += x;
+                this.y += y;
+            }
+            scale(value)
+            {   this.x *= value;
+                this.y *= value;
+            }
+            rotate(angle)
+            {	angle *= Math.PI/180;
+                let x = Math.cos(angle)*this.x-Math.sin(angle)*this.y;
+                let y = Math.sin(angle)*this.x+Math.cos(angle)*this.y;
+                this.x = x;
+                this.y = y;
+            }        
+        }
+
+        class Shape
+        {   constructor(points)
+            {   this.points = points;
+            }
+            draw()
+            {   ctx.strokeStyle = 'black';
+                ctx.beginPath()
+                ctx.moveTo(this.points[0].x, this.points[0].y);
+                for(let i=0;i<this.points.length;i++)
+                    ctx.lineTo(this.points[i].x, this.points[i].y)
+                ctx.closePath();
+                ctx.stroke();
+            }
+            translate(x,y)
+            {   for(let i=0;i<this.points.length;i++)
+                    this.points[i].translate(x,y);
+            }
+            scale(value)
+            {   let center = this.center();
+                this.translate(-center.x, -center.y);
+                    for(let i=0;i<this.points.length;i++)
+                        this.points[i].scale(value);
+                this.translate(center.x, center.y);
+            }
+            rotate(angle)
+            {   let center = this.center();
+                this.translate(-center.x, -center.y);
+                    for(let i=0;i<this.points.length;i++)
+                        this.points[i].rotate(angle);
+                this.translate(center.x, center.y);
+            }
+            center()
+            {   let center = new Point(0, 0);
+                for(let i=0; i<this.points.length; i++)
+                {   center.x += this.points[i].x;
+                    center.y += this.points[i].y;
+                }
+                center.x /= this.points.length;
+                center.y /= this.points.length;
+                return center;
+            }
+        }
+
+        let x = 100, y = 100, w = 50, h = 50;
+        var rec = new Shape(
+            [   new Point(x,y), new Point(x+w,y),
+                new Point(x+w, y+h), new Point(x,y+h),
+                new Point(x,y+h*.2), new Point(x+w*1/8,y+h*.2),
+                new Point(x+w*1/8,y+h*.5), new Point(x+w*3/8,y+h*.5),
+                new Point(x+w*3/8,y+h*.2), new Point(x+w*5/8,y+h*.2),
+                new Point(x+w*5/8,y+h*.5), new Point(x+w*7/8,y+h*.5),
+                new Point(x+w*7/8,y+h*.2), new Point(x+w,y+h*.2),
+                new Point(x,y+h*.2) 
+            ]);
+        var timer = setInterval(()=>
+        {   ctx.fillStyle = 'salmon';
+            ctx.fillRect(0,0,canvas.width, canvas.height)
+            rec.draw();
+        }, 1000/30);
+</script>
+</body>
+</html>
